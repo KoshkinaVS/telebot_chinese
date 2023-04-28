@@ -91,9 +91,9 @@ def show_words(message):
     words = ''
     print(word_list)
     for idx in range(len(word_list)):
-        line = f'{idx+1}. {word_list[idx]} ({pinyin_list[idx]}) -  {translation_list[idx]}\n'
+        line = f'{idx+1}. {word_list[idx]} (_{pinyin_list[idx]}_) -  {translation_list[idx]}\n'
         words+=line
-    bot.send_message(message.from_user.id, words)
+    bot.send_message(message.from_user.id, words, parse_mode="Markdown")
 
 @bot.message_handler(commands=['commands'])
 def send_commands(message):
