@@ -43,17 +43,6 @@ def get_dict_stats():
     return stats
 
 
-# В этом участке кода мы объявили слушателя для текстовых сообщений и метод их обработки
-# @bot.message_handler(content_types=['text'])
-# def get_text_messages(message):
-#     if message.text == "Привет":
-#         bot.send_message(message.from_user.id, "Привет, чем я могу тебе помочь?")
-#     elif message.text == "/help":
-#         bot.send_message(message.from_user.id, "Напиши Привет")
-#     else:
-#         bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
-
-
 word_list = []
 pinyin_list = []
 translation_list = []
@@ -76,14 +65,26 @@ translation = ''
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['help', 'start'])
-def send_welcome(message):
-    bot.reply_to(message, """\
-Привет. Это бот для изучения китайского языка.\n
+def start(message):
+    markup = types.ReplyKeyboardMarkup()
+    btn1 = types.KeyboardButton('Добавить слово')
+    btn2 = types.KeyboardButton("Статистика")
+    btn3 = types.KeyboardButton('Пройти тест')
+    btn4 = types.KeyboardButton("Полезные ссылки")
+    btn5 = types.KeyboardButton("Словарь")
+
+    markup.add(btn1, btn2, btn3, btn4, btn5)
+    bot.send_message(message.chat.id, """\
+Привет, {0.first_name}. Это бот для изучения китайского языка.\n
 Что я умею:\n
 /new_word - добавление нового слова\n
 /stat - статистика слов в словаре\n
-/start_quiz - квиз по словам\
-""")
+/dict - список слов в словаре\n
+/start_quiz - квиз по словам\n
+/links - полезные источники\n
+Или же нажми на кнопки ниже:\n
+""".format(message.from_user),
+                     reply_markup=markup)
 
 @bot.message_handler(commands=['words'])
 def show_words(message):
@@ -103,19 +104,21 @@ def send_commands(message):
 """)
 
 @bot.message_handler(content_types=['text'])
-def start(message):
-    if message.text == '/new_word':
+def some_commands(message):
+    if message.text == '/new_word' or message.text =='Добавить слово':
         bot.send_message(message.from_user.id, "Какое новое слово сегодня?")
         bot.register_next_step_handler(message, get_word)
-    elif message.text == '/dict':
+    elif message.text == '/dict' or message.text =="Словарь":
         bot.send_message(message.from_user.id, old_terms)
-    elif message.text == '/stat':
+    elif message.text == '/stat' or message.text =="Статистика":
         stat = get_dict_stats()
         terms_all = stat['terms_all']
         terms_added = stat['terms_added']
         bot.send_message(message.from_user.id, f'Всего слов в словаре: {terms_all} \nДобавлено {message.from_user.username}: {terms_added}')
-    elif message.text == '/start_quiz':
+    elif message.text == '/start_quiz' or message.text =='Пройти тест':
         start_quiz(message)
+    elif message.text == '/links' or message.text =="Полезные ссылки":
+        links(message)
     else:
         send_commands(message)
 
@@ -163,18 +166,25 @@ def callback_worker(call):
         write_word(word, pinyin, translation, call.message.from_user.username)
 
     elif call.data == "no":
-         # bot.send_message(call.message.chat.id, 'Введем другое слово?') #переспрашиваем
-        send_commands(message)
+        markup = types.ReplyKeyboardMarkup()
+        btn1 = types.KeyboardButton('Добавить слово')
+        btn2 = types.KeyboardButton("Статистика")
+        btn3 = types.KeyboardButton('Пройти тест')
+        btn4 = types.KeyboardButton("Полезные ссылки")
+        btn5 = types.KeyboardButton("Словарь")
+
+        markup.add(btn1, btn2, btn3, btn4, btn5)
+        bot.send_message(call.message.chat.id, 'Введем другое слово?', reply_markup=markup) #переспрашиваем
 
 
-@bot.message_handler(commands=['button'])
-def button_message(message):
-    markup=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1=types.KeyboardButton("Статистика")
-    item2=types.KeyboardButton("Словарь")
-    markup.add(item1)
-    markup.add(item2)
-    bot.send_message(message.chat.id,'Выберите, что вам надо',reply_markup=markup)
+# @bot.message_handler(commands=['button'])
+# def button_message(message):
+#     markup=types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     item1=types.KeyboardButton("Статистика")
+#     item2=types.KeyboardButton("Словарь")
+#     markup.add(item1)
+#     markup.add(item2)
+#     bot.send_message(message.chat.id,'Выберите, что вам надо',reply_markup=markup)
 
 # @bot.message_handler(content_types='text')
 # def message_reply(message):
@@ -228,6 +238,21 @@ def check_answer(message):
 
 # bot.polling(none_stop=True)
 
+keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=False, one_time_keyboard=True)
+stop = types.KeyboardButton(text='отмена ❌')
+keyboard.add(stop)
 
 
-bot.infinity_polling()
+@bot.message_handler(commands=['links']) #создаем команду
+def links(message):
+    markup = types.InlineKeyboardMarkup()
+    button1 = types.InlineKeyboardButton("Сайт БКРС>", url='https://bkrs.info/')
+    button2 = types.InlineKeyboardButton("Словарь LINE Dict>", url='https://dict.naver.com/linedict/zhendict/#/cnen/home')
+
+    markup.add(button1)
+    markup.add(button2)
+
+    bot.send_message(message.chat.id, "Нажми на кнопку и перейди на сайт)".format(message.from_user), reply_markup=markup)
+
+# bot.infinity_polling()
+bot.polling(none_stop=True)
