@@ -86,9 +86,10 @@ def start(message):
 """.format(message.from_user),
                      reply_markup=markup)
 
-@bot.message_handler(commands=['words'])
+@bot.message_handler(commands=['dict'])
 def show_words(message):
     words = ''
+    print(word_list)
     for idx in range(len(word_list)):
         line = f'{idx+1}. {word_list[idx]} ({pinyin_list[idx]}) -  {translation_list[idx]}\n'
         words+=line
@@ -105,19 +106,19 @@ def send_commands(message):
 
 @bot.message_handler(content_types=['text'])
 def some_commands(message):
-    if message.text == '/new_word' or message.text =='Добавить слово':
+    if message.text == '/new_word' or message.text ==' Добавить слово':
         bot.send_message(message.from_user.id, "Какое новое слово сегодня?")
         bot.register_next_step_handler(message, get_word)
-    elif message.text == '/dict' or message.text =="Словарь":
+    elif message.text == '/dict' or message.text == "Словарь":
         bot.send_message(message.from_user.id, old_terms)
-    elif message.text == '/stat' or message.text =="Статистика":
+    elif message.text == '/stat' or message.text == "Статистика":
         stat = get_dict_stats()
         terms_all = stat['terms_all']
         terms_added = stat['terms_added']
         bot.send_message(message.from_user.id, f'Всего слов в словаре: {terms_all} \nДобавлено {message.from_user.username}: {terms_added}')
-    elif message.text == '/start_quiz' or message.text =='Пройти тест':
+    elif message.text == '/start_quiz' or message.text == 'Пройти тест':
         start_quiz(message)
-    elif message.text == '/links' or message.text =="Полезные ссылки":
+    elif message.text == '/links' or message.text == "Полезные ссылки":
         links(message)
     else:
         send_commands(message)
