@@ -85,6 +85,14 @@ def send_welcome(message):
 /start_quiz - квиз по словам\
 """)
 
+@bot.message_handler(commands=['words'])
+def show_words(message):
+    words = ''
+    for idx in range(len(word_list)):
+        line = f'{idx+1}. {word_list[idx]} ({pinyin_list[idx]}) -  {translation_list[idx]}\n'
+        words+=line
+    bot.send_message(message.from_user.id, words)
+
 @bot.message_handler(commands=['commands'])
 def send_commands(message):
     bot.send_message(message.from_user.id, """\
@@ -93,7 +101,6 @@ def send_commands(message):
 /stat - статистика слов в словаре\n
 /start_quiz - квиз по словам\
 """)
-
 
 @bot.message_handler(content_types=['text'])
 def start(message):
@@ -110,7 +117,7 @@ def start(message):
     elif message.text == '/start_quiz':
         start_quiz(message)
     else:
-        bot.send_message(message.from_user.id, 'Напиши /new_word')
+        send_commands(message)
 
 def get_word(message):
     global word
