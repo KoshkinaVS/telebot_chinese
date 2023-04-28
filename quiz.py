@@ -1,10 +1,12 @@
 import terms_work
+import words_work
+
 from random import choices
 
 
 class Quiz:
     def __init__(self):
-        random_terms = choices(terms_work.get_terms_for_table(), k=5)  #TODO: вынести количество вопросов в .env
+        random_terms = choices(words_work.get_terms_for_table(), k=5)  #TODO: вынести количество вопросов в .env
 
         self.qna = []
         cnt = 0
@@ -32,7 +34,7 @@ class Quiz:
 
     def check_quiz(self):
         """Проверяет ответы и возвращает список эмодзи"""
-        correct_answers = [qna_item[2] for qna_item in self.qna]
+        correct_answers = [qna_item[3] for qna_item in self.qna]
         answers_true_false = [i == j for i, j in zip(self.user_answers, correct_answers)]
         answers_emoji = [str(atf).replace('False', '❌').replace('True', '✅') for atf in answers_true_false]
         return answers_emoji

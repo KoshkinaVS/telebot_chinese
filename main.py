@@ -8,7 +8,7 @@ from my_token import token
 bot = telebot.TeleBot(token)
 
 def write_word(new_word, new_pinyin, new_translation, user):
-    new_term_line = f"{new_word};{new_pinyin};{new_translation};user"
+    new_term_line = f"{new_word};{new_pinyin};{new_translation};{user}"
     with open("./data/word_dict.csv", "r", encoding="utf-8") as f:
         existing_terms = [l.strip("\n") for l in f.readlines()]
         title = existing_terms[0]
@@ -19,7 +19,7 @@ def write_word(new_word, new_pinyin, new_translation, user):
     with open("./data/word_dict.csv", "w", encoding="utf-8") as f:
         f.write("\n".join(new_terms))
 
-def get_dict_stats():
+def get_dict_stats(message):
     user_terms = 0
     db_terms = 0
     defin_len = []
@@ -28,9 +28,9 @@ def get_dict_stats():
             word, pinyin, trans, added_by = line.split(";")
             # words = defin.split()
             # defin_len.append(len(words))
-            if "user" in added_by:
+            if message.from_user.username in added_by:
                 user_terms += 1
-            elif "db" in added_by:
+            else:
                 db_terms += 1
     stats = {
         "terms_all": db_terms + user_terms,
@@ -106,13 +106,13 @@ def send_commands(message):
 
 @bot.message_handler(content_types=['text'])
 def some_commands(message):
-    if message.text == '/new_word' or message.text ==' Добавить слово':
+    if message.text == '/new_word' or message.text == 'Добавить слово':
         bot.send_message(message.from_user.id, "Какое новое слово сегодня?")
         bot.register_next_step_handler(message, get_word)
     elif message.text == '/dict' or message.text == "Словарь":
-        bot.send_message(message.from_user.id, old_terms)
+        show_words(message)
     elif message.text == '/stat' or message.text == "Статистика":
-        stat = get_dict_stats()
+        stat = get_dict_stats(message)
         terms_all = stat['terms_all']
         terms_added = stat['terms_added']
         bot.send_message(message.from_user.id, f'Всего слов в словаре: {terms_all} \nДобавлено {message.from_user.username}: {terms_added}')
@@ -164,7 +164,7 @@ def callback_worker(call):
         pinyin_list.append(pinyin)
         translation_list.append(translation)
         bot.send_message(call.message.chat.id, 'Запомню :)')
-        write_word(word, pinyin, translation, call.message.from_user.username)
+        write_word(word, pinyin, translation, call.message.chat.username)
 
     elif call.data == "no":
         markup = types.ReplyKeyboardMarkup()
