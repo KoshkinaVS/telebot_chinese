@@ -82,7 +82,7 @@ def start(message):
 /dict - список слов в словаре\n
 /start_quiz - квиз по словам\n
 /links - полезные источники\n
-Или же нажми на кнопки ниже:\n
+Или же нажми на кнопки в меню\n
 """.format(message.from_user),
                      reply_markup=markup)
 
@@ -101,7 +101,9 @@ def send_commands(message):
 Что я умею:\n
 /new_word - добавление нового слова\n
 /stat - статистика слов в словаре\n
-/start_quiz - квиз по словам\
+/dict - список слов в словаре\n
+/start_quiz - квиз по словам\n
+/links - полезные источники\n
 """)
 
 @bot.message_handler(content_types=['text'])
@@ -121,6 +123,7 @@ def some_commands(message):
     elif message.text == '/links' or message.text == "Полезные ссылки":
         links(message)
     else:
+        bot.send_message(message.from_user.id, f'К сожалению, я не понимаю, что Вы имеете в виду 😢')
         send_commands(message)
 
 def get_word(message):

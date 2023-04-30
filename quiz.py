@@ -6,7 +6,7 @@ from random import choices
 
 class Quiz:
     def __init__(self):
-        random_terms = choices(words_work.get_terms_for_table(), k=5)  #TODO: вынести количество вопросов в .env
+        random_terms = choices(words_work.get_terms_for_table(), k=5)
 
         self.qna = []
         cnt = 0
