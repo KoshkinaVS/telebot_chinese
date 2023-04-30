@@ -140,8 +140,8 @@ def get_translation(message):
     keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
     key_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
     keyboard.add(key_no)
-    question = f'Новое слово {word} {pinyin}, что переводится как {translation}?'
-    bot.send_message(message.from_user.id, text=question, reply_markup=keyboard)
+    question = f'Новое слово {word} (_{pinyin}_), что переводится как *{translation}*?'
+    bot.send_message(message.from_user.id, text=question, reply_markup=keyboard, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
