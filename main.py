@@ -178,7 +178,7 @@ def callback_worker(call):
         btn5 = types.KeyboardButton("Словарь")
 
         markup.add(btn1, btn2, btn3, btn4, btn5)
-        bot.send_message(call.message.chat.id, 'Введем другое слово?', reply_markup=markup) #переспрашиваем
+        bot.send_message(call.message.chat.id, 'Очень жаль, попробуем что-нибудь еще из команд ниже?', reply_markup=markup) #переспрашиваем
 
 
 # @bot.message_handler(commands=['button'])
@@ -237,8 +237,16 @@ def check_answer(message):
         except StopIteration:
             quizzes[message.from_user.id].record_user_answer(message.text)
             results = " ".join(quizzes[message.from_user.id].check_quiz())
-            bot.send_message(message.chat.id, results)
-            send_commands(message)
+            bot.send_message(message.chat.id, 'Ваш результат: ' + results)
+
+            markup = types.InlineKeyboardMarkup()
+            button1 = types.InlineKeyboardButton("Новые слова",
+                                                 url='https://quizlet.com/ru/796808538/%D0%9A%D0%B8%D1%82%D0%B0%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D1%8F%D0%B7%D1%8B%D0%BA-%D0%9C%D0%A4%D0%A2%D0%98-%E7%AC%AC%E4%B9%9D%E8%AF%BE-flash-cards/?funnelUUID=1c3c3372-95e5-44a7-8081-557c80a5cb34')
+
+            markup.add(button1)
+
+            bot.send_message(message.chat.id, "Новые слова можно выучить тут:".format(message.from_user),
+                             reply_markup=markup)
 
 # bot.polling(none_stop=True)
 
