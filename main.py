@@ -2,7 +2,6 @@ import telebot
 from telebot import types
 import quiz
 
-import pandas as pd
 from my_token import token
 
 bot = telebot.TeleBot(token)
@@ -26,8 +25,6 @@ def get_dict_stats(message):
     with open("./data/word_dict.csv", "r", encoding="utf-8") as f:
         for line in f.readlines()[1:]:
             word, pinyin, trans, added_by = line.split(";")
-            # words = defin.split()
-            # defin_len.append(len(words))
             if message.from_user.username in added_by:
                 user_terms += 1
             else:
@@ -36,9 +33,6 @@ def get_dict_stats(message):
         "terms_all": db_terms + user_terms,
         "terms_own": db_terms,
         "terms_added": user_terms,
-        # "words_avg": sum(defin_len)/len(defin_len),
-        # "words_max": max(defin_len),
-        # "words_min": min(defin_len)
     }
     return stats
 
@@ -149,16 +143,6 @@ def get_translation(message):
     question = f'Новое слово {word} {pinyin}, что переводится как {translation}?'
     bot.send_message(message.from_user.id, text=question, reply_markup=keyboard)
 
-# def get_age(message):
-#     global age;
-#     while age == 0: #проверяем что возраст изменился
-#         try:
-#              age = int(message.text) #проверяем, что возраст введен корректно
-#         except Exception:
-#              bot.send_message(message.from_user.id, 'Цифрами, пожалуйста')
-#       bot.send_message(message.from_user.id, 'Тебе '+str(age)+' лет, тебя зовут '+name+' '+surname+'?')
-
-
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
     if call.data == "yes": #call.data это callback_data, которую мы указали при объявлении кнопки
@@ -180,30 +164,6 @@ def callback_worker(call):
         markup.add(btn1, btn2, btn3, btn4, btn5)
         bot.send_message(call.message.chat.id, 'Очень жаль, попробуем что-нибудь еще из команд ниже?', reply_markup=markup) #переспрашиваем
 
-
-# @bot.message_handler(commands=['button'])
-# def button_message(message):
-#     markup=types.ReplyKeyboardMarkup(resize_keyboard=True)
-#     item1=types.KeyboardButton("Статистика")
-#     item2=types.KeyboardButton("Словарь")
-#     markup.add(item1)
-#     markup.add(item2)
-#     bot.send_message(message.chat.id,'Выберите, что вам надо',reply_markup=markup)
-
-# @bot.message_handler(content_types='text')
-# def message_reply(message):
-#     if message.text=="Статистика":
-#         stat = get_dict_stats()
-#         terms_all = stat['terms_all']
-#         terms_added = stat['terms_added']
-#         bot.send_message(message.chat.id,
-#                          f'Всего слов в словаре: {terms_all} \nДобавлено {message.from_user.username}: {terms_added}')
-#     if message.text=="Словарь":
-#         for i in range(len(word_list)):
-#             words = f'{word_list[i]} ({pinyin_list[i]}) - {translation_list[i]}'
-#         bot.send_message(message.from_user.id, text=words)
-
-# bot.polling(none_stop=True, interval=0)
 
 """Глобальная переменная, в которой хранится словарь:
 ключи -- ключи сессий, значения -- объекты Quiz."""
@@ -241,12 +201,6 @@ def check_answer(message):
 
             text = 'Новые слова можно выучить [тут](https://quizlet.com/ru/796808538/%D0%9A%D0%B8%D1%82%D0%B0%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D1%8F%D0%B7%D1%8B%D0%BA-%D0%9C%D0%A4%D0%A2%D0%98-%E7%AC%AC%E4%B9%9D%E8%AF%BE-flash-cards/?funnelUUID=1c3c3372-95e5-44a7-8081-557c80a5cb34)'
             bot.send_message(message.chat.id, text, parse_mode='MarkdownV2')
-
-# bot.polling(none_stop=True)
-
-keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=False, one_time_keyboard=True)
-stop = types.KeyboardButton(text='отмена ❌')
-keyboard.add(stop)
 
 
 @bot.message_handler(commands=['links']) #создаем команду
