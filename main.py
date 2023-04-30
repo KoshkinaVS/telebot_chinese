@@ -6,6 +6,7 @@ from my_token import token
 
 bot = telebot.TeleBot(token)
 
+
 def write_word(new_word, new_pinyin, new_translation, user):
     new_term_line = f"{new_word};{new_pinyin};{new_translation};{user}"
     with open("./data/word_dict.csv", "r", encoding="utf-8") as f:
@@ -18,10 +19,10 @@ def write_word(new_word, new_pinyin, new_translation, user):
     with open("./data/word_dict.csv", "w", encoding="utf-8") as f:
         f.write("\n".join(new_terms))
 
+
 def get_dict_stats(message):
     user_terms = 0
     db_terms = 0
-    defin_len = []
     with open("./data/word_dict.csv", "r", encoding="utf-8") as f:
         for line in f.readlines()[1:]:
             word, pinyin, trans, added_by = line.split(";")
@@ -57,6 +58,7 @@ word = ''
 pinyin = ''
 translation = ''
 
+
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['help', 'start'])
 def start(message):
@@ -80,14 +82,16 @@ def start(message):
 """.format(message.from_user),
                      reply_markup=markup)
 
+
 @bot.message_handler(commands=['dict'])
 def show_words(message):
     words = ''
     print(word_list)
     for idx in range(len(word_list)):
         line = f'{idx+1}. {word_list[idx]} (_{pinyin_list[idx]}_) -  {translation_list[idx]}\n'
-        words+=line
+        words += line
     bot.send_message(message.from_user.id, words, parse_mode="Markdown")
+
 
 @bot.message_handler(commands=['commands'])
 def send_commands(message):
@@ -99,6 +103,7 @@ def send_commands(message):
 /start_quiz - квиз по словам\n
 /links - полезные источники\n
 """)
+
 
 @bot.message_handler(content_types=['text'])
 def some_commands(message):
@@ -120,17 +125,20 @@ def some_commands(message):
         bot.send_message(message.from_user.id, f'К сожалению, я не понимаю, что Вы имеете в виду 😢')
         send_commands(message)
 
+
 def get_word(message):
     global word
     word = message.text
     bot.send_message(message.from_user.id, 'Введите пиньинь:')
     bot.register_next_step_handler(message, get_pinyin)
 
+
 def get_pinyin(message):
     global pinyin
     pinyin = message.text
     bot.send_message(message.from_user.id, 'Какой перевод?')
     bot.register_next_step_handler(message, get_translation)
+
 
 def get_translation(message):
     global translation
@@ -143,9 +151,11 @@ def get_translation(message):
     question = f'Новое слово {word} (_{pinyin}_), что переводится как *{translation}*?'
     bot.send_message(message.from_user.id, text=question, reply_markup=keyboard, parse_mode="Markdown")
 
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    if call.data == "yes": #call.data это callback_data, которую мы указали при объявлении кнопки
+    if call.data == "yes":
+        # call.data это callback_data, которую мы указали при объявлении кнопки
         # код сохранения данных, или их обработки
         word_list.append(word)
         pinyin_list.append(pinyin)
@@ -162,12 +172,13 @@ def callback_worker(call):
         btn5 = types.KeyboardButton("Словарь")
 
         markup.add(btn1, btn2, btn3, btn4, btn5)
-        bot.send_message(call.message.chat.id, 'Очень жаль, попробуем что-нибудь еще из команд ниже?', reply_markup=markup) #переспрашиваем
+        bot.send_message(call.message.chat.id, 'Очень жаль, попробуем что-нибудь еще из команд ниже?', reply_markup=markup)
 
 
 """Глобальная переменная, в которой хранится словарь:
 ключи -- ключи сессий, значения -- объекты Quiz."""
 global quizzes
+
 
 @bot.message_handler(commands=['start_quiz'])
 def start_quiz(message):
@@ -203,11 +214,12 @@ def check_answer(message):
             bot.send_message(message.chat.id, text, parse_mode='MarkdownV2')
 
 
-@bot.message_handler(commands=['links']) #создаем команду
+@bot.message_handler(commands=['links'])
 def links(message):
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton("Сайт БКРС>", url='https://bkrs.info/')
-    button2 = types.InlineKeyboardButton("Словарь LINE Dict>", url='https://dict.naver.com/linedict/zhendict/#/cnen/home')
+    button2 = types.InlineKeyboardButton("Словарь LINE Dict>",
+                                         url='https://dict.naver.com/linedict/zhendict/#/cnen/home')
 
     markup.add(button1)
     markup.add(button2)
